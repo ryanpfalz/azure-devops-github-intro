@@ -1,0 +1,54 @@
+trigger:
+    - main
+
+pool:
+    vmImage: "ubuntu-latest"
+
+variables:
+    buildConfiguration: "Release"
+
+steps:
+    - task: UseDotNet@2
+      inputs:
+          version: "6.x"
+          includePreviewVersions: true
+
+    - task: DotNetCoreCLI@2
+      displayName: "dotnet build"
+      inputs:
+          command: "build"
+          arguments: "--configuration $(BuildConfiguration) -p:OutputPath=$(Build.BinariesDirectory)/WebApplication1"
+          projects: "**/WebApplication1/WebApplication1.csproj"
+
+    # - task: DotNetCoreCLI@2
+    #   displayName: "dotnet test"
+    #   inputs:
+    #       command: "test"
+    #       arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
+    #       publishTestResults: true
+    #       projects: "**/TestProject1/*.csproj"
+
+    - task: CopyFiles@2
+      displayName: "Copy IaC Files"
+      inputs:
+          SourceFolder: Devops/Infrastructure
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Infrastructure"
+
+    - task: DotNetCoreCLI@2
+      displayName: "dotnet publish"
+      inputs:
+          command: publish
+          publishWebProjects: True
+          arguments: "--configuration $(BuildConfiguration) -p:PublishDir=$(Build.BinariesDirectory)/WebApplication1"
+          zipAfterPublish: False
+
+    - task: ArchiveFiles@2
+      inputs:
+          rootFolderOrFile: "$(Build.BinariesDirectory)/WebApplication1"
+          archiveFile: "$(Build.ArtifactStagingDirectory)/WebApplication1.zip"
+          includeRootFolder: False
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+          targetPath: "$(Build.ArtifactStagingDirectory)"
+          artifactName: "AzDO-Demo-Artifact"
