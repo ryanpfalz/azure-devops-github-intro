@@ -14,7 +14,7 @@ This document seeks to cover key features in Azure DevOps by providing relevant 
 <br>
 The sample code in this repository contains a basic build configuration, infrastructure-as-code, and .NET application code that can be imported into Azure DevOps to help accelerate/provide a reference point for new projects.
 
-<img src="./docs/devopscycle.png" alt="DevOps cycle" width="500"/><br>
+<img src="./Docs/devopscycle.png" alt="DevOps cycle" width="500"/><br>
 
 _Detailed phases of the DevOps cycle._
 
