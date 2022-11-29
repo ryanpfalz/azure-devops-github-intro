@@ -34,7 +34,12 @@
 #     configuration: '$(buildConfiguration)'
 
 trigger:
-    - main
+    branches:
+        include:
+            - main
+    paths:
+        exclude:
+            - README.md
 
 pool:
     vmImage: "ubuntu-latest"
