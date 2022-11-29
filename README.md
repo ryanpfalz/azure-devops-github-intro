@@ -29,7 +29,7 @@ _Detailed phases of the DevOps cycle._
 | Delivery            | [Pipelines](https://learn.microsoft.com/en-us/azure/devops/pipelines/get-started/what-is-azure-pipelines?view=azure-devops), [Test Plans](https://learn.microsoft.com/en-us/azure/devops/test/overview?view=azure-devops) | [Actions](https://docs.github.com/en/actions)                                                                                                                         |
 | Operate             | [Dashboards](https://learn.microsoft.com/en-us/azure/devops/report/dashboards/overview?view=azure-devops)                                                                                                                 | [Insights](https://docs.github.com/en/issues/planning-and-tracking-with-projects/viewing-insights-from-your-project/about-insights-for-projects)                      |
 
-## To get started...
+## To get started
 
 -   #### Azure DevOps
 
