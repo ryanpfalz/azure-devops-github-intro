@@ -18,6 +18,8 @@ The sample code in this repository contains a basic build configuration, infrast
 
 _Detailed phases of the DevOps cycle._
 
+[Link to task list for establishing a DevOps practice in your organization](Docs/DevOpsChecklist.md)
+
 ---
 
 | DevOps Phase/Area   | Azure DevOps tool                                                                                                                                                                                                         | GitHub Tool                                                                                                                                                           |
