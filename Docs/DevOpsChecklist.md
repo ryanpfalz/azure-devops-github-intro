@@ -1,9 +1,15 @@
-## 1. Create an Azure DevOps organization.
+## 1. Create a DevOps organization.
+
+-   In Azure DevOps: An Azure DevOps organization should be created when a team wants to collaborate on multiple projects. Projects can then be created within the organization to track specific tasks, teams, and timelines. Learn how to create an organization [here](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/create-organization?view=azure-devops).
+
+-   In GitHub: A GitHub organization should be set up when a team or group of people need to work together on a project and collaborate on coding, or need a centralized place to store their code and related documents. GitHub organizations are also useful for managing access to projects and other resources. Learn how to create an organization account [here](https://docs.github.com/en/organizations).
+
 ## 2. Set up your project and team structure.
 
 -   A DevOps team should include members with a variety of skills, including system administrators, software developers, and operations engineers. The team should also include people with a background in automation, testing, and security. It is important to have both technical and non-technical members to ensure that the team is well-rounded and has a comprehensive understanding of the project.
+-   A Scrum team should consist of roles as described [here](https://resources.scrumalliance.org/Article/scrum-team).
 
-## 3. Document a team charter
+## 3. Document a team charter.
 
 -   Identify the purpose and scope of the team: Before writing the team charter, it's important to clearly define the purpose and scope of the team. This includes outlining the team's goals, objectives, and expectations.
 -   Outline team roles and responsibilities: Once the purpose and scope of the team is identified, the team charter should outline the roles and responsibilities for each team member. This includes who is responsible for what tasks, who will lead the team, and who will be responsible for decision-making.
@@ -18,8 +24,9 @@
 -   Backlog Refinement
 -   Sprint Review/Demo
 -   Sprint Retrospective
+-   Follow best practices on [Agile](https://learn.microsoft.com/en-us/devops/plan/adopting-agile) and [Scrum](https://learn.microsoft.com/en-us/azure/devops/boards/sprints/best-practices-scrum?view=azure-devops)
 
-## 5. Set up your source control
+## 5. Set up your source control.
 
 -   Establish the Goals of Your Branching Strategy: Decide what you want to accomplish with your branching strategy. Consider how your team will use source control and how to support their workflow.
 -   Choose a Branching Model: Select a branching model that best suits your goals. Common models include Gitflow, Feature Branching, and Trunk-Based Development.
@@ -61,7 +68,8 @@
 
 ## 8. Configure your quality and approval gates.
 
--   Quality standards/expectations and enforcement tied to work items via Test Plans
+-   Quality and approval gates are used in the software release process to objectively measure the progress of the software development and ensure that the software meets the desired quality standards before it is released to the public. They provide a framework for assessing the risk of releasing a software version and for approving the release only when it is deemed to have met the required criteria.
+-   Tie your quality standards/plans to work items via Test Plans.
 
 ## 9. Establish your release management and operations.
 
