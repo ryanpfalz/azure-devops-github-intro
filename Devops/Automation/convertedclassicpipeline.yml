@@ -91,7 +91,7 @@ stages:
     jobs:
       - deployment: PRComment
         displayName: "PR Comment (requires approval)"
-        # environment: PRAutomationApproval # this is whatever environment you want to tie your approval group to
+        environment: PRAutomationApproval # this is whatever environment you want to tie your approval group to
         variables:
           pullRequestId: $[stageDependencies.Stage1.CreatePR.outputs['CreatePRScript.prId']]
         strategy:
