@@ -1,0 +1,44 @@
+# https://learn.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#use-outputs-in-a-different-stage
+
+trigger:
+    - NA
+
+pool:
+    vmImage: "ubuntu-latest"
+
+stages:
+    - stage: Stage1
+      jobs:
+          - job: Job1A
+            steps:
+                # - script: |
+                #       echo "##vso[task.setvariable variable=foo;isOutput=true]Bar"
+                #   name: Variables
+                - powershell: |
+                      $var = "Bar"
+                      Write-Host "##vso[task.setvariable variable=foo;isOutput=true]$var"
+                  name: Variables
+
+          # accessing variable within stage
+          - job: Job1B
+            dependsOn: Job1A
+            # condition: eq(dependencies.Job1A.outputs['Variables.foo'], 'Bar')
+            variables:
+                job1AVar: $[dependencies.Job1A.outputs['Variables.foo']]
+            steps:
+                - script: |
+                      echo $(job1AVar)
+
+    # accessing variable across stage
+    - stage: Stage2
+      dependsOn: Stage1
+
+      jobs:
+          # on the job level, use stagedependencies
+          - job: Job2A
+            # condition: eq(stageDependencies.Stage1.Job1A.outputs['Variables.foo'], 'Bar')
+            variables:
+                stage1Var: $[stageDependencies.Stage1.Job1A.outputs['Variables.foo']]
+            steps:
+                - script: |
+                      echo $(stage1Var)
