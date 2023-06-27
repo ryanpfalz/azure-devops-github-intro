@@ -1,15 +1,15 @@
 # inspired by https://stackoverflow.com/a/67519684/8333117
 
-$personalToken = "<your personal access token here>"
-$devOpsOrganization = "ryanpfalz"
-$devOpsProject = "Sandbox" 
+$personalToken = "<personal-access-token>"
+$devOpsOrganization = "<organization-name>"
+$devOpsProject = "<project-name>" 
 
 $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($personalToken)"))
 $header = @{authorization = "Basic $token" }
 
 # $buildId = $(Build.BuildId) # get from pipeline
-$buildId = 198 # hardcode for testing
-$workItemId = 2334 # hardcode for testing; this could be a pipeline parameter
+$buildId = <build-id> # hardcode for testing
+$workItemId = <work-item-id> # hardcode for testing; this could be a pipeline parameter
 
 $body = "[
   {

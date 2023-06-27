@@ -5,15 +5,15 @@ pool:
 
 variables:
   - name: devOpsOrganiztion
-    value: ryanpfalz
+    value: <your org>
   - name: devOpsProject
-    value: Sandbox
+    value: <your project>
   - name: devOpsRepository
-    value: AzDO-Demo
+    value: <your repo>
   - name: targetBranch
     value: main
   - name: prCompletedBy
-    value: ryanpfalz@microsoft.com
+    value: <your email>
 
 parameters:
   - name: sourceBranch
