@@ -3,6 +3,34 @@ trigger: none
 pool:
   vmImage: "windows-latest"
 
+variables:
+  - name: devOpsOrganiztion
+    value: ryanpfalz
+  - name: devOpsProject
+    value: Sandbox
+  - name: devOpsRepository
+    value: AzDO-Demo
+  - name: targetBranch
+    value: main
+  - name: prCompletedBy
+    value: ryanpfalz@microsoft.com
+
+parameters:
+  - name: sourceBranch
+    type: string
+    displayName: Source Branch
+    default: "test-pr"
+  - name: prTitle
+    type: string
+    displayName: Pull Request Title
+    default: "Automated PR"
+  - name: prDescription
+    type: string
+    displayName: Pull Request Description
+    default: "Pull Request Description"
+
+# NOTE: a secret pipeline variable needs to be created called 'apiPatVar' which contains an AzDO PAT with permission to complete PRs
+
 stages:
   - stage: Stage1
     displayName: "Stage 1"
@@ -12,13 +40,13 @@ stages:
         steps:
           - powershell: |
               # Set variables
-              $organization = "ryanpfalz"
-              $project = "Sandbox"
-              $repository = "AzDO-Demo"
-              $sourceBranch = "test-pr"
-              $targetBranch = "main"
-              $title = "Automated"
-              $description = "Pull Request Description"
+              $organization = "${{ variables.devOpsOrganiztion }}"
+              $project = "${{ variables.devOpsProject }}"
+              $repository = "${{ variables.devOpsRepository }}"
+              $sourceBranch =  "${{ parameters.sourceBranch }}"
+              $targetBranch = "${{ variables.targetBranch }}"
+              $title = "${{ parameters.prTitle }}"
+              $description = "${{ parameters.prDescription }}"
 
               # Get + format token
               $user = "prcreation"
@@ -84,72 +112,70 @@ stages:
               Write-Host $(pullRequestUrl)
             displayName: "Print Variables"
 
+      - job: PRComment
+        dependsOn:
+          - CreatePR
+          - PrintVariables
+        displayName: "PR Comment"
+        variables:
+          pullRequestId: $[dependencies.CreatePR.outputs['CreatePRScript.prId']]
+        steps:
+          - powershell: |
+              # Set variables
+              $organization = "${{ variables.devOpsOrganiztion }}"
+              $project = "${{ variables.devOpsProject }}"
+              $repository = "${{ variables.devOpsRepository }}"
+              $buildId = $(Build.BuildId)
+
+              $statusCode = 5 # https://learn.microsoft.com/en-us/dotnet/api/microsoft.teamfoundation.sourcecontrol.webapi.commentthreadstatus?view=azure-devops-dotnet
+
+              # Get + format token 
+              $user = "prcomment"
+              $userPat = $user + ":$(System.AccessToken)"
+              $encodedBytes = [System.Text.Encoding]::UTF8.GetBytes($userPat)
+              $encodedPat = [System.Convert]::ToBase64String($encodedBytes)
+
+              # Set headers
+              $headers = @{
+                  "Authorization" = "Basic $encodedPat"
+                  "Content-Type"  = "application/json"
+              }
+
+              # comment build URL
+              $buildUrl = "https://dev.azure.com/$organization/$project/_build/results?buildId=$buildId"
+
+              $markdown = @"
+              Pipeline: [$buildUrl]($buildUrl)  
+              "@
+
+              #Build the JSON body up
+              $body = @"
+              {
+                  "comments": [
+                    {
+                      "parentCommentId": 0,
+                      "content": "$markdown",
+                      "commentType": 1
+                    }
+                  ],
+                  "status": $statusCode 
+                }
+              "@
+
+              # https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-request-threads/create?view=azure-devops-rest-7.0&tabs=HTTP
+              $url = "https://dev.azure.com/$organization/$project/_apis/git/repositories/$repository/pullRequests/$(pullRequestId)/threads?api-version=7.0"
+
+              Write-Host $url
+              $response = Invoke-RestMethod -Uri $url -Method POST -Headers $headers -Body $body
+
+              Write-Host $response
+            displayName: "PR Comment"
+
   - stage: Stage2
     displayName: "Stage 2"
     dependsOn: Stage1
     condition: succeeded('Stage1')
     jobs:
-      - deployment: PRComment
-        displayName: "PR Comment (requires approval)"
-        environment: PRAutomationApproval # this is whatever environment you want to tie your approval group to
-        variables:
-          pullRequestId: $[stageDependencies.Stage1.CreatePR.outputs['CreatePRScript.prId']]
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - powershell: |
-                    # Set variables
-                    $organization = "ryanpfalz"
-                    $project = "Sandbox"
-                    $repository = "AzDO-Demo"
-                    $buildId = $(Build.BuildId)
-
-                    $statusCode = 5 # https://learn.microsoft.com/en-us/dotnet/api/microsoft.teamfoundation.sourcecontrol.webapi.commentthreadstatus?view=azure-devops-dotnet
-
-
-                    # Get + format token 
-                    $user = "prcomment"
-                    $userPat = $user + ":$(System.AccessToken)"
-                    $encodedBytes = [System.Text.Encoding]::UTF8.GetBytes($userPat)
-                    $encodedPat = [System.Convert]::ToBase64String($encodedBytes)
-
-                    # Set headers
-                    $headers = @{
-                        "Authorization" = "Basic $encodedPat"
-                        "Content-Type"  = "application/json"
-                    }
-
-                    # comment build URL
-                    $buildUrl = "https://dev.azure.com/$organization/$project/_build/results?buildId=$buildId"
-
-                    $markdown = @"
-                    Pipeline: [$buildUrl]($buildUrl)  
-                    "@
-
-                    #Build the JSON body up
-                    $body = @"
-                    {
-                        "comments": [
-                          {
-                            "parentCommentId": 0,
-                            "content": "$markdown",
-                            "commentType": 1
-                          }
-                        ],
-                        "status": $statusCode 
-                      }
-                    "@
-
-                    # https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-request-threads/create?view=azure-devops-rest-7.0&tabs=HTTP
-                    $url = "https://dev.azure.com/$organization/$project/_apis/git/repositories/$repository/pullRequests/$(pullRequestId)/threads?api-version=7.0"
-
-                    Write-Host $url
-                    $response = Invoke-RestMethod -Uri $url -Method POST -Headers $headers -Body $body
-
-                    Write-Host $response
-                  displayName: "PR Comment"
-
       - deployment: PRComplete
         displayName: "PR Complete (requires approval)"
         environment: PRAutomationApproval # this is whatever environment you want to tie your approval group to
@@ -160,14 +186,14 @@ stages:
             deploy:
               steps:
                 - powershell: |
-                    $completedBy = "ryanpfalz@microsoft.com"
-                    $organization = "ryanpfalz"
-                    $project = "Sandbox"
-                    $repository = "AzDO-Demo"
+                    $completedBy = "${{ variables.prCompletedBy }}"
+                    $organization = "${{ variables.devOpsOrganiztion }}"
+                    $project = "${{ variables.devOpsProject }}"
+                    $repository = "${{ variables.devOpsRepository }}"
 
                     # Get + format token 
                     $user = "automation"
-                    $userPat = $user + ":$(apiPatVar)"
+                    $userPat = $user + ":$(apiPatVar)" # TODO: this variable needs to be set in the pipeline
                     $encodedBytes = [System.Text.Encoding]::UTF8.GetBytes($userPat)
                     $encodedPat = [System.Convert]::ToBase64String($encodedBytes)
 
