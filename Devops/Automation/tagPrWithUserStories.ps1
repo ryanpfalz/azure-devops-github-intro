@@ -32,7 +32,6 @@ $body = @"
         }
     ]
 "@
-# "Build" may also be "Integrated in build"
 
 $updateWorkItemurl = "https://dev.azure.com/${devOpsOrganization}/${devOpsProject}/_apis/wit/workitems/${workItemId}?api-version=6.0"
 
