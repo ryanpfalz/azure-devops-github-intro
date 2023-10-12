@@ -1,0 +1,47 @@
+trigger:
+  branches:
+    include:
+      - none
+
+pool:
+  vmImage: "windows-latest"
+
+variables:
+  - name: workingDirectory
+    value: "TerraformSample" # your terraform project directory
+  - name: backendServiceArm
+    value: "<your-azure-rm-service-connection>" # for connecting to storage account
+  - name: backendAzureRmResourceGroupName
+    value: "<your-azure-resource-group>" # your resource group containing storage account
+  - name: backendAzureRmStorageAccountName
+    value: "<your-azure-storage-account>" # your storage account name
+  - name: backendAzureRmContainerName
+    value: "<your-azure-storage-container>" # your storage container within storage account
+  - name: backendAzureRmKey
+    value: "<your-state-file-name>.tfstate" # your state file name
+
+steps:
+  - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@1
+    displayName: "Install Terraform latest"
+
+  - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
+    displayName: "Terraform init"
+    inputs:
+      workingDirectory: ${{ variables.workingDirectory }}
+      backendServiceArm: ${{ variables.backendServiceArm }}
+      backendAzureRmResourceGroupName: ${{ variables.backendAzureRmResourceGroupName }}
+      backendAzureRmStorageAccountName: ${{ variables.backendAzureRmStorageAccountName }}
+      backendAzureRmContainerName: ${{ variables.backendAzureRmContainerName }}
+      backendAzureRmKey: ${{ variables.backendAzureRmKey }}
+
+  - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
+    displayName: "Terraform plan"
+    inputs:
+      command: plan
+      workingDirectory: ${{ variables.workingDirectory }}
+      environmentServiceNameAzureRM: ${{ variables.backendServiceArm }}
+      backendServiceArm: ${{ variables.backendServiceArm }}
+      backendAzureRmResourceGroupName: ${{ variables.backendAzureRmResourceGroupName }}
+      backendAzureRmStorageAccountName: ${{ variables.backendAzureRmStorageAccountName }}
+      backendAzureRmContainerName: ${{ variables.backendAzureRmContainerName }}
+      backendAzureRmKey: ${{ variables.backendAzureRmKey }}
