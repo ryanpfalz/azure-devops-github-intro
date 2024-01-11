@@ -47,7 +47,7 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 # Example usage:
 
 # In this example, I'm using a sample JSON file that contains keys called "connectionProperties" that I want to remove.
-$jsonFile = "C:\Users\ryanpfalz\OneDrive - Microsoft\Dev\PowerShell\nestedjson2.json"
+$jsonFile = "<path-to-file>.json"
 
 # Read the content of the file
 $jsonData = Get-Content $jsonFile -Raw | ConvertFrom-Json
