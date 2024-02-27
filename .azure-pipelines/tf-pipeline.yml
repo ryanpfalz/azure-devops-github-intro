@@ -19,8 +19,12 @@ variables:
     value: "<your-azure-storage-container>" # your storage container within storage account
   - name: backendAzureRmKey
     value: "<your-state-file-name>.tfstate" # your state file name
+  - name: env
+    value: "<your-environment>" # your environment name
 
 steps:
+  # optional: create storage account + container with Azure CLI
+
   - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@1
     displayName: "Install Terraform latest"
 
@@ -32,7 +36,7 @@ steps:
       backendAzureRmResourceGroupName: ${{ variables.backendAzureRmResourceGroupName }}
       backendAzureRmStorageAccountName: ${{ variables.backendAzureRmStorageAccountName }}
       backendAzureRmContainerName: ${{ variables.backendAzureRmContainerName }}
-      backendAzureRmKey: ${{ variables.backendAzureRmKey }}
+      backendAzureRmKey: "${{ variables.env }}/${{ variables.backendAzureRmKey }}"
 
   - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
     displayName: "Terraform plan"
@@ -44,4 +48,17 @@ steps:
       backendAzureRmResourceGroupName: ${{ variables.backendAzureRmResourceGroupName }}
       backendAzureRmStorageAccountName: ${{ variables.backendAzureRmStorageAccountName }}
       backendAzureRmContainerName: ${{ variables.backendAzureRmContainerName }}
-      backendAzureRmKey: ${{ variables.backendAzureRmKey }}
+      backendAzureRmKey: "${{ variables.env }}/${{ variables.backendAzureRmKey }}"
+
+  - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
+    displayName: "Terraform apply"
+    inputs:
+      command: apply
+      workingDirectory: ${{ variables.workingDirectory }}
+      environmentServiceNameAzureRM: ${{ variables.backendServiceArm }}
+      backendServiceArm: ${{ variables.backendServiceArm }}
+      backendAzureRmResourceGroupName: ${{ variables.backendAzureRmResourceGroupName }}
+      backendAzureRmStorageAccountName: ${{ variables.backendAzureRmStorageAccountName }}
+      backendAzureRmContainerName: ${{ variables.backendAzureRmContainerName }}
+      backendAzureRmKey: "${{ variables.env }}/${{ variables.backendAzureRmKey }}"
+      commandOptions: "-auto-approve"
