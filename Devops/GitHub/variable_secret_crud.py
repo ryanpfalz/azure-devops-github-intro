@@ -7,14 +7,19 @@ import os
 
 base_dir = os.path.dirname(os.path.abspath(__file__)).replace('\\', '/')
 
+# read json config file
+with open(f'{base_dir}/github_setup_config.json', 'r') as f:
+    config = json.load(f)
+
 # Note that Organization variables and secrets are not yet supported in this codebase
 
 # Assume owner, repo, and environment_name are predefined for simplicity. Adjust as needed.
-owner = '<owner-name>'
-repo = '<repo-name>'
-environment_name = '<env-name>'
+owner = config['owner']
+repo = config['repo']
+environment_name = config['environment_name']
 
-token = '<pat>'  # this is personal access token
+token = config['github_pat']  # this is personal access token
+
 
 # Headers must include your actual GitHub token
 headers = {
