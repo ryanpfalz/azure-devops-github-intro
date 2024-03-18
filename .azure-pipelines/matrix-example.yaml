@@ -1,0 +1,60 @@
+trigger:
+  branches:
+    include:
+      - none
+
+pool:
+  vmImage: "windows-latest"
+
+variables:
+  - name: functions
+    value: "function1,function2,function3,function4"
+
+jobs:
+  - job: generateInput
+    steps:
+      # Powershell option - split functions variable and create a json object for the matrix
+      # - task: PowerShell@2
+      #   name: GenerateMatrix
+      #   inputs:
+      #     targetType: "inline"
+      #     script: |
+      #       $functionNames = "$(functions)".Split(',')
+      #       $jsonItems = $functionNames | ForEach-Object { "'$_': { 'function': '$_' }" }
+      #       $json = "{ " + ($jsonItems -join ', ') + " }"
+      #       Write-Host "##vso[task.setvariable variable=matrix;isOutput=true]$json"
+
+      # Bash option - split functions variable and create a json object for the matrix
+      - task: Bash@3
+        name: GenerateMatrix
+        inputs:
+          targetType: "inline"
+          script: |
+            IFS=',' read -r -a functionNames <<< "$(functions)"
+            jsonItems=()
+            for functionName in "${functionNames[@]}"; do
+              jsonItems+=("\"$functionName\": { \"function\": \"$functionName\" }")
+            done
+            json="{ $(IFS=, ; echo "${jsonItems[*]}") }"
+            echo "##vso[task.setvariable variable=matrix;isOutput=true]$json"
+
+      # Print the matrix for validation
+      - task: Bash@3
+        name: EchoMatrix
+        inputs:
+          targetType: "inline"
+          script: |
+            echo "Matrix: $(GenerateMatrix.matrix)"
+
+  # The below will run N times, where N is the number of functions
+  - job: runJob
+    dependsOn: generateInput
+    strategy:
+      matrix: $[ dependencies.generateInput.outputs['GenerateMatrix.matrix'] ]
+    steps:
+      - task: Bash@3
+        displayName: "Echo Function"
+        inputs:
+          targetType: "inline"
+          script: |
+            echo "Function: $(function)"
